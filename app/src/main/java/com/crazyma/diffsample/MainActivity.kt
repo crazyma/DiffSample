@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
         GlobalScope.launch(Dispatchers.IO) {
             val list = mutableListOf<MyAdapter.Item>().apply {
                 for (i in 0 until 1) {
-                    add(MyAdapter.Item(i, "Created in first loop"))
+                    add(MyAdapter.BigItem(i, "Created in first loop"))
                 }
             }
 
@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity() {
                     add(it)
                 }
                 for (i in 100 until 120) {
-                    add(0, MyAdapter.Item(i, "Created in second loop"))
+                    add(0, MyAdapter.ShortItem(i, "Created in second loop"))
                 }
             }
 
@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity() {
         GlobalScope.launch(Dispatchers.IO) {
             val list = mutableListOf<MyAdapter.Item>().apply {
                 for (i in 0 until 50) {
-                    add(MyAdapter.Item(i, "Created in first loop"))
+                    add(MyAdapter.BigItem(i, "Created in first loop"))
                 }
             }
 
@@ -85,14 +85,14 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 var x = 1
-                for(i in 100 until 105){
+                for (i in 100 until 105) {
                     val randomPosition = x
-                    add(randomPosition, MyAdapter.Item(i, "Created in second loop"))
+                    add(randomPosition, MyAdapter.ShortItem(i, "Created in second loop"))
                     x += 2
                 }
 
                 for (i in 200 until 205) {
-                    add(0, MyAdapter.Item(i, "Created in second loop"))
+                    add(0, MyAdapter.ShortItem(i, "Created in second loop"))
                 }
             }
 

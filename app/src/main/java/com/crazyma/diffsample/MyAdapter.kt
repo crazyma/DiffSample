@@ -1,5 +1,6 @@
 package com.crazyma.diffsample
 
+import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -9,6 +10,11 @@ import androidx.recyclerview.widget.RecyclerView
  */
 class MyAdapter : RecyclerView.Adapter<MyViewHolder>() {
 
+    companion object {
+        const val TYPE_BIG_MESSAGE = 0
+        const val TYPE_SHORT_MESSAGE = 1
+    }
+
     var items: List<Item>? = null
         set(value) {
             diffItems(field, value).dispatchUpdatesTo(this)
@@ -16,18 +22,46 @@ class MyAdapter : RecyclerView.Adapter<MyViewHolder>() {
         }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
-        return MyViewHolder.create(parent)
+        return when (viewType) {
+            TYPE_BIG_MESSAGE -> BigMessageViewHolder.create(parent)
+            TYPE_SHORT_MESSAGE -> ShortMessageViewHolder.create(parent)
+            else -> throw IllegalArgumentException("Unknown ViewHolder for view type: $viewType.")
+        }
     }
 
     override fun getItemCount(): Int = items?.size ?: 0
 
-    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        items!![position].run {
-            holder.bind(floor, message)
+    override fun getItemViewType(position: Int) = when (items?.get(position)) {
+        is BigItem -> TYPE_BIG_MESSAGE
+        is ShortItem -> TYPE_SHORT_MESSAGE
+        else -> {
+            throw RuntimeException("Unable to determine view type")
         }
     }
 
-    data class Item(val floor: Int, val message: String)
+    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
+        val item = items?.get(position) ?: return
+
+        when (getItemViewType(position)) {
+            TYPE_BIG_MESSAGE -> {
+                item as BigItem
+                (holder as BigMessageViewHolder).bind(item.floor, item.message)
+            }
+            TYPE_SHORT_MESSAGE -> {
+                Log.d("badu", "position $position")
+                item as ShortItem
+                (holder as ShortMessageViewHolder).bind(item.floor, item.message)
+            }
+        }
+    }
+
+    abstract class Item(val floor: Int)
+
+    abstract class MessageItem(floor: Int, val message: String) : Item(floor)
+
+    class BigItem(floor: Int, message: String) : MessageItem(floor, message)
+
+    class ShortItem(floor: Int, message: String) : MessageItem(floor, message)
 
     private fun diffItems(oldItems: List<Item>?, newItems: List<Item>?) =
         DiffUtil.calculateDiff(object : DiffUtil.Callback() {
@@ -40,6 +74,9 @@ class MyAdapter : RecyclerView.Adapter<MyViewHolder>() {
 
                 val oldItem = oldItems!![oldItemPosition]
                 val newItem = newItems!![newItemPosition]
+                if (oldItem::class != newItem::class) {
+                    return false
+                }
 
                 return oldItem.floor == newItem.floor
             }
@@ -47,8 +84,14 @@ class MyAdapter : RecyclerView.Adapter<MyViewHolder>() {
             override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
                 val oldItem = oldItems!![oldItemPosition]
                 val newItem = newItems!![newItemPosition]
-
-                return oldItem.message == newItem.message
+                if (oldItem::class != newItem::class) {
+                    return false
+                }
+                return when (oldItem) {
+                    is BigItem -> (newItem as BigItem).message === oldItem.message
+                    is ShortItem -> (newItem as ShortItem).message === oldItem.message
+                    else -> false
+                }
             }
         })
 
