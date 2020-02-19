@@ -1,6 +1,7 @@
 package com.crazyma.diffsample
 
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,6 +16,15 @@ class MainActivity : AppCompatActivity() {
 
         setupRecyclerView()
         populateData2()
+    }
+
+    fun buttonClicked(v: View){
+        when(v.id){
+            R.id.button1 -> {
+                (recyclerView.adapter as MyAdapter).insertToFirstItem()
+                recyclerView.scrollToPosition(0)
+            }
+        }
     }
 
     private fun setupRecyclerView() {

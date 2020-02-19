@@ -15,7 +15,7 @@ class MyAdapter : RecyclerView.Adapter<MyViewHolder>() {
         const val TYPE_SHORT_MESSAGE = 1
     }
 
-    var items: List<Item>? = null
+    var items: MutableList<Item>? = null
         set(value) {
             diffItems(field, value).dispatchUpdatesTo(this)
             field = value
@@ -53,6 +53,16 @@ class MyAdapter : RecyclerView.Adapter<MyViewHolder>() {
                 (holder as ShortMessageViewHolder).bind(item.floor, item.message)
             }
         }
+    }
+
+    fun insertToFirstItem(){
+        items?.let{
+            it.add(
+                0,
+                ShortItem(1000 + it.size, "item inserted by adapter")
+            )
+        }
+        notifyItemInserted(0)
     }
 
     abstract class Item(val floor: Int)
