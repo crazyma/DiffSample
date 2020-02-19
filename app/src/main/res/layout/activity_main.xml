@@ -7,12 +7,21 @@
     tools:context=".MainActivity">
 
     <Button
-        android:id="@+id/button1"
+        android:id="@+id/addButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:text="button 1"
+        android:text="Add First"
+        android:onClick="buttonClicked"/>
+
+    <Button
+        android:id="@+id/removeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/addButton"
+        android:text="Remove First"
         android:onClick="buttonClicked"/>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -22,5 +31,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button1" />
+        app:layout_constraintTop_toBottomOf="@+id/addButton" />
 </androidx.constraintlayout.widget.ConstraintLayout>

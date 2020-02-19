@@ -4,7 +4,9 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 
@@ -18,11 +20,13 @@ class MainActivity : AppCompatActivity() {
         populateData2()
     }
 
-    fun buttonClicked(v: View){
-        when(v.id){
-            R.id.button1 -> {
-                (recyclerView.adapter as MyAdapter).insertToFirstItem()
-                recyclerView.scrollToPosition(0)
+    fun buttonClicked(v: View) {
+        when (v.id) {
+            R.id.addButton -> {
+                insertFirstItem()
+            }
+            R.id.removeButton -> {
+                removeFirstItem()
             }
         }
     }
@@ -32,8 +36,16 @@ class MainActivity : AppCompatActivity() {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(this@MainActivity)
             adapter = MyAdapter()
+            getDecoration(this)?.let { addItemDecoration(it) }
         }
     }
+
+    private fun getDecoration(recyclerView: RecyclerView): RecyclerView.ItemDecoration? {
+        return (recyclerView.layoutManager as? LinearLayoutManager)?.run {
+            DividerItemDecoration(this@MainActivity, this.orientation)
+        }
+    }
+
 
     /**
      * 1. create 1 cell
@@ -111,6 +123,43 @@ class MainActivity : AppCompatActivity() {
                 (recyclerView.adapter as MyAdapter).items = list2
             }
 
+        }
+    }
+
+    private fun insertFirstItem() {
+        GlobalScope.launch(Dispatchers.IO) {
+            val list = (recyclerView.adapter as MyAdapter).items ?: return@launch
+            val list2 = mutableListOf<MyAdapter.Item>().apply {
+                list.forEach {
+                    add(it)
+                }
+
+                add(0, MyAdapter.ShortItem(1000 + list.size, "Created in second loop"))
+            }
+
+            withContext(Dispatchers.Main) {
+                Toast.makeText(this@MainActivity, "updated!", Toast.LENGTH_LONG).show()
+                (recyclerView.adapter as MyAdapter).items = list2
+                recyclerView.scrollToPosition(0)
+            }
+        }
+    }
+
+    private fun removeFirstItem() {
+        GlobalScope.launch(Dispatchers.IO) {
+            val list = (recyclerView.adapter as MyAdapter).items ?: return@launch
+            val list2 = mutableListOf<MyAdapter.Item>().apply {
+                list.forEachIndexed { index, item ->
+                    if (index != 0) {
+                        add(item)
+                    }
+                }
+            }
+
+            withContext(Dispatchers.Main) {
+                Toast.makeText(this@MainActivity, "updated!", Toast.LENGTH_LONG).show()
+                (recyclerView.adapter as MyAdapter).items = list2
+            }
         }
     }
 
